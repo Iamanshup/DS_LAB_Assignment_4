@@ -36,7 +36,14 @@ void Graph::DFS_Print(int s, const char *filename)
   unordered_map<int, int> start, end;
   int time = 0;
 
-  DFS_Print_Helper1(s, start, end, time);
+  for (int i = 1; i <= adjacency_list.size(); ++i)
+  {
+    if (start.find(i) == start.end())
+    {
+      cout << i << endl;
+      DFS_Print_Helper1(i, start, end, time);
+    }
+  }
 
   ofstream fout;
 
@@ -52,7 +59,12 @@ void Graph::DFS_Print(int s, const char *filename)
   fout << "node [shape=record, height=0.1, style=rounded];\n";
 
   unordered_map<int, bool> vis;
-  DFS_Print_Helper2(s, vis, start, end, fout);
+
+  for (int i = 1; i <= adjacency_list.size(); ++i)
+  {
+    if (!vis[i])
+      DFS_Print_Helper2(i, vis, start, end, fout);
+  }
 
   fout << "}";
   fout.close(); // close dot file
