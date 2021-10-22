@@ -13,16 +13,16 @@ private:
   void DFS_Print_Helper2(int s, unordered_map<int, bool> &vis, unordered_map<int, int> &start, unordered_map<int, int> &end, ofstream &fout);
 
 public:
-  Graph();
+  Graph(int n);
   void add_edge(int v1, int v2, int w);
   void DFS_Print(int s, const char *filename);
 };
 
-Graph::Graph()
+Graph::Graph(int n = 0)
 {
-  for (auto u : adjacency_list)
+  for (int i = 1; i <= n; ++i)
   {
-    adjacency_list.erase(u.first);
+    adjacency_list[i] = vector<pair<int, int>>();
   }
 }
 
