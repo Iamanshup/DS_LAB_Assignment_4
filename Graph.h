@@ -20,6 +20,7 @@ public:
   void DFS_Print(int s, const char *filename);
   void find_SCC();
   bool is_semiconnected();
+  void Dijkstra(int s);
 };
 
 Graph::Graph(int n = 0)
@@ -267,4 +268,40 @@ bool Graph::is_semiconnected()
       return false;
   }
   return true;
+}
+
+void Graph::Dijkstra(int s)
+{
+  vector<int> distance(V + 1, INT_MAX);
+  vector<bool> vis(V + 1, false);
+  distance[s] = 0;
+  priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> q;
+  q.push(make_pair(0, s));
+
+  while (!q.empty())
+  {
+    int a = q.top().second;
+    q.pop();
+    if (vis[a])
+      continue;
+    vis[a] = true;
+    for (pair<int, int> p : adjacency_list[a])
+    {
+      int b = p.first;
+      int w = p.second;
+      if (distance[a] + w < distance[b])
+      {
+        distance[b] = distance[a] + w;
+        q.push({distance[b], b});
+      }
+    }
+  }
+
+  cout << "Source: " << s << endl;
+  cout << "Node\tDistance\n";
+  cout << "=================\n";
+  for (int i = 1; i <= V; ++i)
+  {
+    cout << i << "\t" << distance[i] << endl;
+  }
 }
