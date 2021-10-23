@@ -11,7 +11,8 @@ private:
   unordered_map<int, vector<pair<int, int>>> adjacency_list;
   void DFS_Print_Helper1(int s, unordered_map<int, int> &start, unordered_map<int, int> &end);
   void DFS_Print_Helper2(int s, unordered_map<int, bool> &vis, unordered_map<int, int> &start, unordered_map<int, int> &end, ofstream &fout);
-  void find_SCC_Helper(int s, vector<int> &disc, vector<int> &low, vector<int> &colour, stack<int> &st);
+  void find_SCC_Helper(int s, vector<int> &disc, vector<int> &low, vector<int> &colour, stack<int> &st, vector<vector<int>> &components);
+  void is_semiconnected_helper(int s, vector<bool> &vis);
 
 public:
   int V;
@@ -19,6 +20,7 @@ public:
   void add_edge(int v1, int v2, int w);
   void DFS_Print(int s, const char *filename);
   void find_SCC();
+  bool is_semiconnected();
 };
 
 Graph::Graph(int n = 0)
@@ -132,19 +134,29 @@ void Graph::find_SCC()
   vector<int> disc(V + 1), low(V + 1), colour(V + 1);
   stack<int> st;
   cout << "Following are the strongly connected components:\n";
+
+  vector<vector<int>> components;
   for (int i = 1; i <= V; ++i)
   {
     if (disc[i] == 0)
-      find_SCC_Helper(i, disc, low, colour, st);
+      find_SCC_Helper(i, disc, low, colour, st, components);
+  }
+
+  int no_of_components = components.size();
+
+  for (int i = 0; i < no_of_components; ++i)
+  {
+    cout << "Component Number " << i + 1 << ": ";
+    for (int node : components[i])
+      cout << node << " ";
+    cout << endl;
   }
 }
 
-void Graph::find_SCC_Helper(int s, vector<int> &disc, vector<int> &low, vector<int> &colour, stack<int> &st)
+void Graph::find_SCC_Helper(int s, vector<int> &disc, vector<int> &low, vector<int> &colour, stack<int> &st, vector<vector<int>> &components)
 {
   static int time = 0;
-  static int component = 0;
   disc[s] = low[s] = ++time;
-  // cout << time << endl;
   st.push(s);
   colour[s] = 1;
 
@@ -152,7 +164,7 @@ void Graph::find_SCC_Helper(int s, vector<int> &disc, vector<int> &low, vector<i
   {
     if (disc[e.first] == 0)
     {
-      find_SCC_Helper(e.first, disc, low, colour, st);
+      find_SCC_Helper(e.first, disc, low, colour, st, components);
       low[s] = min(low[s], low[e.first]);
     }
     else if (colour[e.first] == 1)
@@ -165,18 +177,27 @@ void Graph::find_SCC_Helper(int s, vector<int> &disc, vector<int> &low, vector<i
   int node = 0; // To store stack extracted vertices
   if (low[s] == disc[s])
   {
-    cout << "Component Number " << ++component << ": ";
+    vector<int> component;
     while (st.top() != s)
     {
-      // cout << st.top() << endl;
       node = st.top();
-      cout << node << " ";
+      component.push_back(node);
       colour[node] = 2;
       st.pop();
     }
     node = st.top();
-    cout << node << "\n";
+    component.push_back(node);
     colour[node] = 2;
     st.pop();
+
+    components.push_back(component);
   }
+}
+
+bool Graph::is_semiconnected()
+{
+}
+
+void Graph::is_semiconnected_helper(int s, vector<bool> &vis)
+{
 }
