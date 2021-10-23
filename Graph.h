@@ -12,7 +12,6 @@ private:
   void DFS_Print_Helper1(int s, unordered_map<int, int> &start, unordered_map<int, int> &end);
   void DFS_Print_Helper2(int s, unordered_map<int, bool> &vis, unordered_map<int, int> &start, unordered_map<int, int> &end, ofstream &fout);
   void find_SCC_Helper(int s, vector<int> &disc, vector<int> &low, vector<int> &colour, stack<int> &st, vector<vector<int>> &components);
-  void is_semiconnected_helper(int s, vector<bool> &vis);
 
 public:
   int V;
@@ -196,8 +195,76 @@ void Graph::find_SCC_Helper(int s, vector<int> &disc, vector<int> &low, vector<i
 
 bool Graph::is_semiconnected()
 {
-}
+  vector<int> roots(V + 1, 0);
+  vector<int> root_nodes;
+  unordered_map<int, vector<int>> adj_scc;
 
-void Graph::is_semiconnected_helper(int s, vector<bool> &vis)
-{
+  vector<int> disc(V + 1), low(V + 1), colour(V + 1);
+  stack<int> st;
+
+  vector<vector<int>> components;
+  for (int i = 1; i <= V; ++i)
+  {
+    if (disc[i] == 0)
+      find_SCC_Helper(i, disc, low, colour, st, components);
+  }
+
+  for (vector<int> component : components)
+  {
+    int root = component[0];
+    for (int node : component)
+      roots[node] = root;
+    root_nodes.push_back(root);
+  }
+
+  vector<int> inDegree(V + 1);
+
+  for (int v = 1; v <= V; ++v)
+  {
+    for (pair<int, int> e : adjacency_list[v])
+    {
+      int root_v = roots[v];
+      int root_u = roots[e.first];
+
+      if (root_u != root_v)
+      {
+        adj_scc[root_v].push_back(root_u);
+        inDegree[root_u]++;
+      }
+    }
+  }
+
+  int start_node = 0;
+  for (int node : root_nodes)
+  {
+    if (inDegree[node] == 0)
+    {
+      start_node = node;
+      break;
+    }
+  }
+
+  queue<int> q;
+  vector<bool> vis(V + 1);
+  q.push(start_node);
+
+  while (!q.empty())
+  {
+    int node = q.front();
+    q.pop();
+    vis[node] = true;
+    for (int neighbour : adj_scc[node])
+    {
+      if (vis[neighbour])
+        continue;
+      q.push(neighbour);
+    }
+  }
+
+  for (int node : root_nodes)
+  {
+    if (!vis[node])
+      return false;
+  }
+  return true;
 }
