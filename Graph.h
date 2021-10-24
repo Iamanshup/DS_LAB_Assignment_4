@@ -12,6 +12,7 @@ private:
   void DFS_Print_Helper1(int s, unordered_map<int, int> &start, unordered_map<int, int> &end);
   void DFS_Print_Helper2(int s, unordered_map<int, bool> &vis, unordered_map<int, int> &start, unordered_map<int, int> &end, ofstream &fout);
   void find_SCC_Helper(int s, vector<int> &disc, vector<int> &low, vector<int> &colour, stack<int> &st, vector<vector<int>> &components);
+  void DFS_New_Graph(int s, unordered_map<int, bool> &vis, unordered_map<int, vector<pair<int, int>>> &new_adj_list, ofstream &fout);
 
 public:
   int V;
@@ -21,6 +22,7 @@ public:
   void find_SCC();
   bool is_semiconnected();
   void Dijkstra(int s);
+  void remove_extra_edges();
 };
 
 Graph::Graph(int n = 0)
@@ -303,5 +305,113 @@ void Graph::Dijkstra(int s)
   for (int i = 1; i <= V; ++i)
   {
     cout << i << "\t" << distance[i] << endl;
+  }
+}
+
+void Graph::remove_extra_edges()
+{
+  vector<int> roots(V + 1, 0);
+  vector<int> root_nodes;
+  unordered_map<int, vector<int>> adj_scc;
+
+  vector<int> disc(V + 1), low(V + 1), colour(V + 1);
+  stack<int> st;
+
+  vector<vector<int>> components;
+  for (int i = 1; i <= V; ++i)
+  {
+    if (disc[i] == 0)
+      find_SCC_Helper(i, disc, low, colour, st, components);
+  }
+
+  for (vector<int> component : components)
+  {
+    int root = component[0];
+    for (int node : component)
+      roots[node] = root;
+    root_nodes.push_back(root);
+  }
+
+  unordered_map<int, vector<pair<int, int>>> new_adj_list;
+
+  for (pair<int, vector<pair<int, int>>> p : adjacency_list)
+  {
+    new_adj_list[p.first] = p.second;
+  }
+
+  map<pair<int, int>, bool> mp;
+
+  for (int v = 1; v <= V; ++v)
+  {
+    for (pair<int, int> e : adjacency_list[v])
+    {
+      int root_v = roots[v];
+      int root_u = roots[e.first];
+
+      if (root_v < root_u)
+        swap(root_u, root_v);
+
+      if (root_u != root_v)
+      {
+        // adj_scc[root_v].push_back(root_u);
+        if (mp[make_pair(root_u, root_v)])
+        {
+          // for(auto ee : adjacency_list[v])
+          new_adj_list[v].erase(find(new_adj_list[v].begin(), new_adj_list[v].end(), e));
+        }
+        else
+        {
+          mp[make_pair(root_u, root_v)] = true;
+        }
+      }
+    }
+  }
+
+  const char *filename = "Q3";
+  ofstream fout;
+
+  string dot_file = "";
+  dot_file = dot_file + filename + ".dot"; // name of graphviz file
+
+  string png_file = "";
+  png_file = png_file + filename + ".png"; // name of png file
+
+  fout.open(dot_file.c_str()); // open dot file for writing
+
+  fout << "digraph g {\n";
+  fout << "node [style=rounded];\n";
+
+  unordered_map<int, bool> vis;
+
+  for (int i = 1; i <= new_adj_list.size(); ++i)
+  {
+    if (!vis[i])
+      DFS_New_Graph(i, vis, new_adj_list, fout);
+  }
+
+  fout << "}";
+  fout.close(); // close dot file
+
+  string str = "dot -Tpng ";
+  str = str + dot_file + " -o " + png_file;
+
+  const char *command = str.c_str();
+
+  system(command); // system call to run the dot file using graphviz
+
+  cout << "Graph Printed Successfully! Please check the " << png_file << " file.\n";
+}
+
+void Graph::DFS_New_Graph(int s, unordered_map<int, bool> &vis, unordered_map<int, vector<pair<int, int>>> &new_adj_list, ofstream &fout)
+{
+  // fout << s << "\n";
+  vis[s] = true;
+  for (auto e : new_adj_list[s])
+  {
+    if (!vis[e.first])
+    {
+      DFS_New_Graph(e.first, vis, new_adj_list, fout);
+    }
+    fout << s << " -> " << e.first << "[label=" << e.second << "]\n";
   }
 }
