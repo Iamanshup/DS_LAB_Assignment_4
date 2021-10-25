@@ -5,16 +5,24 @@ using namespace std;
 
 int main()
 {
-  Graph *graph = new Graph();
-  graph->add_edge(1, 2, 1);
-  graph->add_edge(2, 3, 1);
-  graph->add_edge(3, 4, 1);
-  graph->add_edge(4, 1, 1);
-  graph->add_edge(1, 3, 1);
-  graph->add_edge(1, 5, 1);
+  int nodes, edges;
+  string filename = "input.txt";
+  ifstream file(filename);
+  file >> nodes >> edges;
+  Graph *graph = new Graph(nodes);
 
-  // cout << LDBL_MIN << endl;
-  // cout << sizeof(LDBL_MIN) << endl;
+  for (int i = 0; i < edges; i++)
+  {
+    int u, v, w;
+    file >> u >> v >> w;
+    graph->add_edge(u, v, w);
+  }
+
+  file.close();
 
   graph->DFS_Print(1, "test");
+  // graph->find_SCC();
+  // cout << graph->is_semiconnected() << endl;
+  // graph->Dijkstra(1);
+  graph->remove_extra_edges();
 }
