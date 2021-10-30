@@ -9,6 +9,7 @@ private:
   void DFS_Print_Helper2(int s, unordered_map<int, bool> &vis, unordered_map<int, int> &start, unordered_map<int, int> &end, ofstream &fout);
   void find_SCC_Helper(int s, vector<int> &disc, vector<int> &low, vector<int> &colour, stack<int> &st, vector<vector<int>> &components);
   void DFS_New_Graph(int s, unordered_map<int, bool> &vis, unordered_map<int, vector<pair<int, int>>> &new_adj_list, ofstream &fout);
+  void Print_Graph_Helper(int s, unordered_map<int, bool> &vis, ofstream &fout);
 
 public:
   int V;
@@ -19,6 +20,7 @@ public:
   bool is_semiconnected();
   void Dijkstra(int s);
   void remove_extra_edges();
+  void Print_Graph(const char *filename);
 };
 
 Graph::Graph(int n = 0)
@@ -409,5 +411,53 @@ void Graph::DFS_New_Graph(int s, unordered_map<int, bool> &vis, unordered_map<in
       DFS_New_Graph(e.first, vis, new_adj_list, fout);
     }
     fout << s << " -> " << e.first << "[label=" << e.second << "]\n";
+  }
+}
+
+void Graph::Print_Graph(const char *filename)
+{
+  ofstream fout;
+
+  string dot_file = "";
+  dot_file = dot_file + filename + ".dot"; // name of graphviz file
+
+  string png_file = "";
+  png_file = png_file + filename + ".png"; // name of png file
+
+  fout.open(dot_file.c_str()); // open dot file for writing
+
+  fout << "digraph g {\n";
+  fout << "node [style=rounded];\n";
+
+  unordered_map<int, bool> vis;
+
+  for (int i = 1; i <= V; ++i)
+  {
+    if (!vis[i])
+      Print_Graph_Helper(i, vis, fout);
+  }
+
+  fout << "}";
+  fout.close(); // close dot file
+
+  string str = "dot -Tpng ";
+  str = str + dot_file + " -o " + png_file;
+
+  const char *command = str.c_str();
+
+  system(command); // system call to run the dot file using graphviz
+
+  cout << "Graph Printed Successfully! Please check the " << png_file << " file.\n";
+}
+
+void Graph::Print_Graph_Helper(int s, unordered_map<int, bool> &vis, ofstream &fout)
+{
+  vis[s] = true;
+  for (pair<int, int> e : adjacency_list[s])
+  {
+    fout << s << " -> " << e.first << " [label=" << e.second << "]\n";
+    if (vis[e.first])
+      continue;
+    Print_Graph_Helper(e.first, vis, fout);
   }
 }
