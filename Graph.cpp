@@ -82,7 +82,6 @@ int main()
       }
       else
       {
-        cout << start << endl;
         graph->Dijkstra(start);
       }
       break;

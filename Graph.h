@@ -164,8 +164,6 @@ void Graph::find_SCC()
 
   int no_of_components = components.size();
 
-  // vector<int> roots(V + 1);
-
   // print the components on terminal
   for (int i = 0; i < no_of_components; ++i)
   {
@@ -178,61 +176,6 @@ void Graph::find_SCC()
     }
     cout << endl;
   }
-
-  // // print the components in a png file
-  // const char *filename = "Components";
-
-  // ofstream fout;
-
-  // string dot_file = "";
-  // dot_file = dot_file + filename + ".dot"; // name of graphviz file
-
-  // string png_file = "";
-  // png_file = png_file + filename + ".png"; // name of png file
-
-  // fout.open(dot_file.c_str()); // open dot file for writing
-
-  // fout << "digraph g {\n";
-  // fout << "node [style=rounded];\n";
-
-  // unordered_map<int, bool> vis;
-
-  // // bfs to print the components
-  // for (int i = 1; i <= V; ++i)
-  // {
-  //   if (vis[i])
-  //     continue;
-
-  //   queue<int> q;
-  //   q.push(i);
-
-  //   while (!q.empty())
-  //   {
-  //     int node = q.front();
-  //     q.pop();
-  //     if (vis[node])
-  //       continue;
-  //     vis[node] = true;
-  //     for (pair<int, int> p : adjacency_list[node])
-  //     {
-  //       if (roots[node] == roots[p.first])
-  //         fout << node << " -> " << p.first << " [label=" << p.second << "]\n";
-  //       q.push(p.first);
-  //     }
-  //   }
-  // }
-
-  // fout << "}";
-  // fout.close(); // close dot file
-
-  // string str = "dot -Tpng ";
-  // str = str + dot_file + " -o " + png_file;
-
-  // const char *command = str.c_str();
-
-  // system(command); // system call to run the dot file using graphviz
-
-  // cout << "Graph Printed Successfully! Please check the " << png_file << " file.\n";
 }
 
 //========================================================================================================================
