@@ -19,7 +19,7 @@ public:
   void find_SCC();
   bool is_semiconnected();
   void Dijkstra(int s);
-  void remove_extra_edges();
+  void remove_extra_edges(const char *filename);
   void Print_Graph(const char *filename);
 };
 
@@ -74,6 +74,8 @@ void Graph::DFS_Print(int s, const char *filename)
   fout << "digraph g {\n";
   fout << "node [shape=record, height=0.1, style=rounded];\n";
 
+  fout << "label = \"T: Tree Edge\nB: Back Edge\nC: Cross Edge\nF: Forward Edge\";\n";
+
   unordered_map<int, bool> vis; // keep track of visited nodes
 
   for (int i = 1; i <= adjacency_list.size(); ++i)
@@ -118,27 +120,27 @@ void Graph::DFS_Print_Helper1(int s, unordered_map<int, int> &start, unordered_m
 void Graph::DFS_Print_Helper2(int s, unordered_map<int, bool> &vis, unordered_map<int, int> &start, unordered_map<int, int> &end, ofstream &fout)
 {
   vis[s] = true;
-  fout << s << " [label=\"<f0>|<f1>" << s << "|<f2> " << start[s] << " |<f3> " << end[s] << "\"];\n";
+  fout << s << " [label=\"<f0>" << s << "|<f1> " << start[s] << " |<f2> " << end[s] << "\"];\n";
   for (auto e : adjacency_list[s])
   {
     if (!vis[e.first])
     {
       DFS_Print_Helper2(e.first, vis, start, end, fout);
-      fout << s << ":f0 -> " << e.first << ":f1 [label=\"Tree Edge\"]\n";
+      fout << s << ":f0 -> " << e.first << ":f0 [label=\"T\"]\n";
     }
     else
     {
       if (start[s] > start[e.first] && end[s] < end[e.first])
       {
-        fout << s << ":f0 -> " << e.first << ":f1 [label=\"Back Edge\" style=\"dashed\"]\n";
+        fout << s << ":f0 -> " << e.first << ":f0 [label=\"B\" style=\"dashed\"]\n";
       }
       else if (start[s] < start[e.first] && end[s] > end[e.first])
       {
-        fout << s << ":f0 -> " << e.first << ":f1 [label=\"Forward Edge\" style=\"dashed\"]\n";
+        fout << s << ":f0 -> " << e.first << ":f0 [label=\"F\" style=\"dashed\"]\n";
       }
       else if (start[s] > start[e.first] && end[s] > end[e.first])
       {
-        fout << s << ":f0 -> " << e.first << ":f1 [label=\"Cross Edge\" style=\"dashed\"]\n";
+        fout << s << ":f0 -> " << e.first << ":f0 [label=\"C\" style=\"dashed\"]\n";
       }
     }
   }
@@ -162,7 +164,7 @@ void Graph::find_SCC()
 
   int no_of_components = components.size();
 
-  vector<int> roots(V + 1);
+  // vector<int> roots(V + 1);
 
   // print the components on terminal
   for (int i = 0; i < no_of_components; ++i)
@@ -172,65 +174,65 @@ void Graph::find_SCC()
     for (int node : components[i])
     {
       cout << node << " ";
-      roots[node] = root;
+      // roots[node] = root;
     }
     cout << endl;
   }
 
-  // print the components in a png file
-  const char *filename = "Components";
+  // // print the components in a png file
+  // const char *filename = "Components";
 
-  ofstream fout;
+  // ofstream fout;
 
-  string dot_file = "";
-  dot_file = dot_file + filename + ".dot"; // name of graphviz file
+  // string dot_file = "";
+  // dot_file = dot_file + filename + ".dot"; // name of graphviz file
 
-  string png_file = "";
-  png_file = png_file + filename + ".png"; // name of png file
+  // string png_file = "";
+  // png_file = png_file + filename + ".png"; // name of png file
 
-  fout.open(dot_file.c_str()); // open dot file for writing
+  // fout.open(dot_file.c_str()); // open dot file for writing
 
-  fout << "digraph g {\n";
-  fout << "node [style=rounded];\n";
+  // fout << "digraph g {\n";
+  // fout << "node [style=rounded];\n";
 
-  unordered_map<int, bool> vis;
+  // unordered_map<int, bool> vis;
 
-  // bfs to print the components
-  for (int i = 1; i <= V; ++i)
-  {
-    if (vis[i])
-      continue;
+  // // bfs to print the components
+  // for (int i = 1; i <= V; ++i)
+  // {
+  //   if (vis[i])
+  //     continue;
 
-    queue<int> q;
-    q.push(i);
+  //   queue<int> q;
+  //   q.push(i);
 
-    while (!q.empty())
-    {
-      int node = q.front();
-      q.pop();
-      if (vis[node])
-        continue;
-      vis[node] = true;
-      for (pair<int, int> p : adjacency_list[node])
-      {
-        if (roots[node] == roots[p.first])
-          fout << node << " -> " << p.first << " [label=" << p.second << "]\n";
-        q.push(p.first);
-      }
-    }
-  }
+  //   while (!q.empty())
+  //   {
+  //     int node = q.front();
+  //     q.pop();
+  //     if (vis[node])
+  //       continue;
+  //     vis[node] = true;
+  //     for (pair<int, int> p : adjacency_list[node])
+  //     {
+  //       if (roots[node] == roots[p.first])
+  //         fout << node << " -> " << p.first << " [label=" << p.second << "]\n";
+  //       q.push(p.first);
+  //     }
+  //   }
+  // }
 
-  fout << "}";
-  fout.close(); // close dot file
+  // fout << "}";
+  // fout.close(); // close dot file
 
-  string str = "dot -Tpng ";
-  str = str + dot_file + " -o " + png_file;
+  // string str = "dot -Tpng ";
+  // str = str + dot_file + " -o " + png_file;
 
-  const char *command = str.c_str();
+  // const char *command = str.c_str();
 
-  system(command); // system call to run the dot file using graphviz
+  // system(command); // system call to run the dot file using graphviz
 
-  cout << "Graph Printed Successfully! Please check the " << png_file << " file.\n";
+  // cout << "Graph Printed Successfully! Please check the " << png_file << " file.\n";
 }
 
 //========================================================================================================================
@@ -410,7 +412,7 @@ void Graph::Dijkstra(int s)
 
 // Function to remove extra edges and get
 // a graph with minimum number of edges
-void Graph::remove_extra_edges()
+void Graph::remove_extra_edges(const char *filename)
 {
   vector<int> roots(V + 1, 0);
   vector<int> root_nodes;
@@ -467,7 +469,6 @@ void Graph::remove_extra_edges()
     }
   }
 
-  const char *filename = "Q3";
   ofstream fout;
 
   string dot_file = "";

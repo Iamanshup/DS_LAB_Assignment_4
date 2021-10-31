@@ -58,7 +58,7 @@ int main()
       {
         cout << "Enter filename(without extension): ";
         cin >> filename;
-        graph->remove_extra_edges();
+        graph->remove_extra_edges(filename.c_str());
       }
       catch (...)
       {
@@ -76,7 +76,15 @@ int main()
     case 5:
       cout << "Enter source node for Dijkstra(1 - " << nodes << "): ";
       cin >> start;
-      graph->Dijkstra(start);
+      if (start > nodes || start < 1)
+      {
+        cout << "Invalid Node\n";
+      }
+      else
+      {
+        cout << start << endl;
+        graph->Dijkstra(start);
+      }
       break;
 
     case 6:
